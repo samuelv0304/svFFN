@@ -167,6 +167,30 @@ def getIdTrial(con, length, swim, gender):
         
     return row[0];
 
+def existsIdCompetition(con, idCompetition):
+    """
+    Vérifie si une compétition a déjà été intégrée
+    
+    :param con: connexion à la base de données
+    :param idCompetitiion: identifiant de la compétition
+    :type idCompetition: int
+    
+    :return: vrai si la compétition a déjà été intégrée
+    :rtype: boolean
+    
+    """
+    
+    cur = con.cursor()
+    cur.execute("SELECT * FROM CompetitionsTrials WHERE IdCompetition=?", (idCompetition,))
+    row = cur.fetchone()
+    cur.close()
+    
+    if row == None:
+        return False
+    
+    return True
+
+
 def insertTrialInCompetition(con, idCompetition, idTrial):
     """
     Associe une épreuve à une compétition
