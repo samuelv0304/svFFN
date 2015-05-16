@@ -24,11 +24,11 @@ import urllib.request
 import codecs
 
 regions = { 1 : "Alsace",  2 : "Aquitaine", 3 : "Auvergne", 4 : "Bourgogne", 5 : "Bretagne", 
-6 : "Centre", 7 : "Champagne-Ardenne", 8 : "Corse", 9 : "Cote d'Azur", 12 : "Franche-Comté",
- 13 : "Ile-de-France", 14 : "Languedoc-Roussillon", 15 : "Limousin", 16 : "Lorraine", 
- 18 : "Nord-pas-de-Calais", 19 : "Normandie", 20 : "Pays de la Loire", 21 : "Picardie", 
- 22 : "Poitou-Charentes", 23 : "Provence", 24 : "Midi-Pyrénées", 25 : "Nouvelle-Calédonie", 
- 26 : "Guadeloupe", 27 : "Martinique", 28 : "Guyane", 29 : "La Réunion"}
+6 : "Centre", 7 : "ChampagneArdenne", 8 : "Corse", 9 : "CotedAzur", 12 : "FrancheComte",
+ 13 : "IledeFrance", 14 : "LanguedocRoussillon", 15 : "Limousin", 16 : "Lorraine", 
+ 18 : "NordpasdeCalais", 19 : "Normandie", 20 : "PaysdelaLoire", 21 : "Picardie", 
+ 22 : "PoitouCharentes", 23 : "Provence", 24 : "MidiPyrenees", 25 : "NouvelleCaledonie", 
+ 26 : "Guadeloupe", 27 : "Martinique", 28 : "Guyane", 29 : "LaReunion"}
 
 departements = { 2 : "aisne", 6 : "alpesmaritimes", 8 : "ardennes", 9 : "ariege", 10 : "aube", 11 :
 "aude", 12 : "aveyron", 14 : "calvados", 16 : "charente", 17 : "charentemaritime", 18 : "cher", 19 :
@@ -73,6 +73,7 @@ def findSiteIdCptByName(site, season, name):
 
 def findDepIdCptByName(season, dep, name):
     """
+    [DEPRECATED]
     Recherche dans le département indiqué toutes les compétitions portant le nom indiqué et retourne la liste des identifiants de ces compétitions.
     
     :param season: saison
@@ -89,6 +90,7 @@ def findDepIdCptByName(season, dep, name):
 
 def findRegIdCptByName(season, reg, name):
     """
+    [DEPRECATED]
     Recherche dans le département indiqué toutes les compétitions portant le nom indiqué et retourne la liste des identifiants de ces compétitions.
     
     :param season: saison
