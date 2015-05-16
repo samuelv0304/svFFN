@@ -78,19 +78,26 @@ def _update_progress(progress):
     sys.stdout.write(text)
     sys.stdout.flush()
 
-def _insertCompetition(connection, idcpt):
+def _insertCompetition(connection, idcpt, update=False):
     """
     Intègre dans la base de données une compétition
     
     :param connection: connexion à la base de données
     :param idcpt: identifiant de la compétition
+    :apram update: 
     :type idcpt: int
+    :type update: boolean
     """
+
+    print("Competition : {0}".format(idcpt))
+    # Vérifie si la compétition a déjà été insérée
+    if not update and SwimmingDb.existsIdCompetition(connection, idcpt):
+        print("Déjà intégrée")
+        return
 
     #SwimmingDb.insertCompetition(connection, idcpt, date, colonnes[-3], args.bassin)
     ideprs = AnalyzeWebFFN.findIdEprForCompetition(idcpt)
 
-    print("Competition : {0}".format(idcpt))
     progress = 0.;
     _update_progress(progress)
     for idepr in ideprs:
@@ -107,26 +114,26 @@ def _insertCompetition(connection, idcpt):
         progress += 1
         _update_progress(progress/len(ideprs))
 
-def _princDepartement(connection, season, dep, desc):
+def _princDepartement(connection, season, dep, desc, update=False):
     print("Département: {}".format(AnalyzeWebFFN.departements[dep]))
 
     idcpts = AnalyzeWebFFN.findSiteIdCptByName(AnalyzeWebFFN.departements[dep], season, desc)
     for idcpt in idcpts:
-        _insertCompetition(connection, idcpt)
+        _insertCompetition(connection, idcpt, update)
     
-def _princRegion(connection, season, reg, desc):
+def _princRegion(connection, season, reg, desc, update=False):
     print("Régions: {}".format(AnalyzeWebFFN.regions[reg]))
 
     idcpts = AnalyzeWebFFN.findSiteIdCptByName(AnalyzeWebFFN.regions[reg], season, desc)
     for idcpt in idcpts:
-        _insertCompetition(connection, idcpt)
+        _insertCompetition(connection, idcpt, update)
         
-def _princFichier(connection, filename):
+def _princFichier(connection, filename, update=False):
     with open(filename, "r") as csv_file:
         csv_reader = csv.reader(csv_file, dialect='excel')
         for row in csv_reader:
             for idcpt in row:
-                _insertCompetition(connection, (int)(idcpt))
+                _insertCompetition(connection, (int)(idcpt), update)
 
 def _currentSeason():
     """
@@ -152,6 +159,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--idcpt', required=False, type=int, help='identifiant de la compétition à intégrer.')
     parser.add_argument('-f', '--fichier', required=False, type=str, help='nom du fichier contenant les identifiants des compétitions à insérer. Un identifiant par ligne.')
     parser.add_argument('-b', '--base', required=False, type=str, help='nom de la base de donnée.')
+    parser.add_argument('-u', '--update', required=False, action='store_true', help='insére uniquement les performances des compétitions non encore insérées')
     
     args = parser.parse_args()
     
@@ -177,18 +185,18 @@ if __name__ == '__main__':
         desc = '^natathlon.*(12-13).*'
         if args.departement == 0:
             for dep in AnalyzeWebFFN.departements:
-                _princDepartement(connection, args.saison, dep, desc)
+                _princDepartement(connection, args.saison, dep, desc, args.update)
         elif args.departement and args.departement > 0:
-             _princDepartement(connection, args.saison, args.departement, desc)
+             _princDepartement(connection, args.saison, args.departement, desc, args.update)
         if args.region == 0:
             for reg in AnalyzeWebFFN.regions:
-                _princRegion(connection, args.saison, reg, desc)
+                _princRegion(connection, args.saison, reg, desc, args.update)
         elif args.region and args.region > 0:
-            _princRegion(connection, args.saison, args.region, desc)
+            _princRegion(connection, args.saison, args.region, desc, args.update)
         if args.idcpt and args.idcpt > 0:
-            _insertCompetition(connection, args.idcpt)
+            _insertCompetition(connection, args.idcpt, args.update)
         if args.fichier:
-            _princFichier(connection, args.fichier)
+            _princFichier(connection, args.fichier, args.update)
             
         SwimmingDb.exportTableInCSV(connection, 'NatathlonF')
         SwimmingDb.exportTableInCSV(connection, 'NatathlonH')
