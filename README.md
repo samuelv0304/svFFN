@@ -1,8 +1,11 @@
 Ce programme extrait du site internet de la Fédération Française de Natationles les résultats d'une ou plusieurs compétitions pour les stocker dans une base de données locale afin de les analyser.
 
 Un exemple d'application est réalisé pour le Natathlon Benjamin de la saison 2015. Pour cela vous devez lancer la commande
+
     natathlon.py -d -r
+
 D'autres options sont possibles, vous pouvez les obtenir avec :
+
     natathlon.py -h
 
 Fonctionnement erroné
