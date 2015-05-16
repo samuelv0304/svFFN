@@ -127,7 +127,6 @@ def getResultsOfCompetitionFromCSV(season, dep, idcpt, removeFirstLine = True):
     csvfile = csv.reader(codecs.iterdecode(stream, 'iso-8859-1'), delimiter=';') # utf-8
     for line in csvfile:
     #    #insertSwimmer(con, line[2], line[3], line[5], line[4], line[6])
-    #    print(line)
         epr = line.pop(0).partition(" ") # analyser l'épreuve au format : "dist nage genre"
         line.pop(0) # supprime format d'épreuve
         line.insert(0, epr[2].rpartition(" ")[0]) # nage
@@ -202,7 +201,7 @@ def getResultsOfTrial(idcpt, idTrial):
             elif value == 'tabColPts':
                 points = _getElementText(element)
                 result.append(int(points.split(' ')[0]))
-        #print(result)
+
         results.append(result)
 
     return results;
@@ -240,7 +239,7 @@ def findIdEprForCompetition(idcpt):
         # Analyse page Femme (idsex=2) et Homme (idsex=1)
         for sex in range(1,3):
             urlSex = '{}&idsex={}'.format(url, sex)
-            print(urlSex)
+
             page = requests.get(urlSex)
             tree = html.fromstring(page.text)
             
