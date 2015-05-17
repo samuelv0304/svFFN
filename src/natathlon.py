@@ -132,6 +132,8 @@ def _princFichier(connection, filename, update=False):
     with open(filename, "r") as csv_file:
         csv_reader = csv.reader(csv_file, dialect='excel')
         for row in csv_reader:
+            print("Zone: {}".format(row[0]))
+            row.pop(0)
             for idcpt in row:
                 _insertCompetition(connection, (int)(idcpt), update)
 
