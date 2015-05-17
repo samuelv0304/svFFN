@@ -251,7 +251,7 @@ def findIdEprForCompetition(idcpt):
             for row in rows:
                 params = row.text.split(' ')
                 if params[1][0] == '4':
-                    idepr = code4N[int(params[0])]
+                    idepr = idsex + code4N[int(params[0])]
                 else:
                     idepr = idsex + codeDist[int(params[0])] + codeNage[params[1]]
                 results.append(int(idepr))

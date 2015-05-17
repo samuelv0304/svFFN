@@ -8,7 +8,7 @@ D'autres options sont possibles, vous pouvez les obtenir avec :
 
     natathlon.py -h
 
-Le format du fichier CSV accepté en lecture a le format suivant
+Le format du fichier CSV accepté en lecture a le format suivant :
 
     Titre, idCpt1, idCpt2, idCpt3
     Autre titre, idCptX, idCptY
