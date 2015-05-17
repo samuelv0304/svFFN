@@ -3,6 +3,6 @@
 
 *.pyc
 
-*.csv
+*.csv*
 
-*.xlsx
+*.xls*
