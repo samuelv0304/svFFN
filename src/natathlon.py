@@ -29,6 +29,10 @@ def createNatathlonView(con, gender):
     cur = con.cursor()
 
     eprs = [32, 33, 12, 13, 22, 23, 2, 3, 42, 5]
+    if gender == 'h':
+        test = '>'
+    else:
+        test = '<'
     
     # From the python FAQ: What is the most efficient way to concatenate many strings together?
     # http://docs.python.org/py3k/faq/programming.html#what-is-the-most-efficient-way-to-concatenate-many-strings-together
@@ -45,7 +49,7 @@ def createNatathlonView(con, gender):
             continue
         chunks.append(", sum(case when t.idTrial = {} then t.Time else '' end) Time{}{} ".format(epr, row[0], row[1]))
         chunks.append(", sum(case when t.idTrial = {} then t.Point else 0 end) Point{}{} ".format(epr, row[0], row[1]))
-    chunks.append("FROM Swimmers n JOIN Times t ON t.idSwimmer=n.Id WHERE n.Gender='{}' ".format(gender))
+    chunks.append("FROM Swimmers n JOIN Times t ON t.idSwimmer=n.Id WHERE n.Gender='{}' AND t.idTrial{}50 ".format(gender, test))
     chunks.append("GROUP BY n.LastName, n.FirstName, n.Structure ")
     chunks.append("ORDER BY Total DESC LIMIT 200")
     request = ''.join(chunks)
