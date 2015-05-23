@@ -23,25 +23,7 @@ import csv
 import urllib.request
 import codecs
 
-regions = { 1 : "Alsace",  2 : "Aquitaine", 3 : "Auvergne", 4 : "Bourgogne", 5 : "Bretagne", 
-6 : "Centre", 7 : "ChampagneArdenne", 8 : "Corse", 9 : "CotedAzur", 12 : "FrancheComte",
- 13 : "IledeFrance", 14 : "LanguedocRoussillon", 15 : "Limousin", 16 : "Lorraine", 
- 18 : "NordpasdeCalais", 19 : "Normandie", 20 : "PaysdelaLoire", 21 : "Picardie", 
- 22 : "PoitouCharentes", 23 : "Provence", 24 : "MidiPyrenees", 25 : "NouvelleCaledonie", 
- 26 : "Guadeloupe", 27 : "Martinique", 28 : "Guyane", 29 : "LaReunion"}
-
-departements = { 2 : "aisne", 6 : "alpesmaritimes", 8 : "ardennes", 9 : "ariege", 10 : "aube", 11 :
-"aude", 12 : "aveyron", 14 : "calvados", 16 : "charente", 17 : "charentemaritime", 18 : "cher", 19 :
-"correze", 21 : "cotedor", 23 : "Creuse", 25 : "Doubs", 26 : "Drome", 27 : "Eure", 29 : "Finistere", 30
-: "Gard", 31 : "Hautegaronne", 32 : "Gers", 33 : "Gironde", 34 : "Herault", 35 : "IlleetVilaine", 36 :
-"Indre", 37 : "IndreetLoire", 38 : "Isere", 40 : "Landes", 41 : "LoiretCher", 43 : "HauteLoire", 44 :
-"LoireAtlantique", 45 : "Loiret", 46 : "Lot", 49 : "MaineetLoire", 50 : "Manche", 51 : "Marne", 52 :
-"HauteMarne", 53 : "Mayenne", 54 : "MeurtheetMoselle", 55 : "Meuse", 56 : "Morbihan", 57 : "Moselle", 58
-: "Nievre", 60 : "Oise", 61 : "Orne", 62 : "PasdeCalais", 63 : "PuydeDome", 65 : "HautesPyrenees", 66 :
-"PyreneesOrientales", 67 : "BasRhin", 68 : "HautRhin", 71 : "SaoneetLoire", 72 : "Sarthe", 75 : "Paris",
-76 : "SeineMaritime", 77 : "SeineetMarne", 78 : "Yvelines", 79 : "DeuxSevres", 80 : "Somme", 81 :
-"Tarn", 83 : "Var", 85 : "Vendee", 86 : "Vienne", 87 : "HauteVienne", 88 : "Vosges", 89 : "Yonne", 91 :
-"Essonne", 92 : "HautsdeSeine", 93 : "SeineSaintDenis", 94 : "ValdeMarne", 95 : "ValdOise"}
+import svFFN.miscFFN
 
 def findSiteIdCptByName(site, season, name):
     """
@@ -86,7 +68,7 @@ def findDepIdCptByName(season, dep, name):
     :rtype: list
     """
     
-    return findSiteIdCptByName(departements[dep], season, name)
+    return findSiteIdCptByName(miscFFN.departements[dep], season, name)
 
 def findRegIdCptByName(season, reg, name):
     """
@@ -103,7 +85,7 @@ def findRegIdCptByName(season, reg, name):
     :rtype: list
     """
     
-    return findSiteIdCptByName(regions[reg], season, name)
+    return findSiteIdCptByName(miscFFN.regions[reg], season, name)
 
 def getResultsOfCompetitionFromCSV(season, dep, idcpt, removeFirstLine = True):
     """
@@ -123,7 +105,7 @@ def getResultsOfCompetitionFromCSV(season, dep, idcpt, removeFirstLine = True):
     """
     results = []
     
-    url = 'http://{}.ffnatation.fr/script/nat_results_csv.php?idcpt={}'.format(departements[dep], idcpt)
+    url = 'http://{}.ffnatation.fr/script/nat_results_csv.php?idcpt={}'.format(miscFFN.departements[dep], idcpt)
         
     stream = urllib.request.urlopen(url)
     csvfile = csv.reader(codecs.iterdecode(stream, 'iso-8859-1'), delimiter=';') # utf-8
@@ -376,4 +358,4 @@ def findRegIdEprForCompetition(reg, idcpt):
     :return: liste des épreuves
     :rtype: list
     """    
-    return findSiteIdEprForCompetition(regions[reg], idcpt)
+    return findSiteIdEprForCompetition(miscFFN.regions[reg], idcpt)

@@ -16,12 +16,11 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from svFFN import AnalyzeWebFFN, SwimmingDb
+from svFFN import AnalyzeWebFFN, SwimmingDb, miscFFN
 import sqlite3 as lite
 
 import argparse
 import sys
-import datetime
 
 import csv
 
@@ -59,29 +58,6 @@ def createNatathlonView(con, gender):
     
     return;
 
-# update_progress() : Displays or updates a console progress bar
-## Accepts a float between 0 and 1. Any int will be converted to a float.
-## A value under 0 represents a 'halt'.
-## A value at 1 or bigger represents 100%
-def _update_progress(progress):
-    barLength = 20 # Modify this to change the length of the progress bar
-    status = ""
-    if isinstance(progress, int):
-        progress = float(progress)
-    if not isinstance(progress, float):
-        progress = 0
-        status = "error: progress var must be float\r\n"
-    if progress < 0:
-        progress = 0
-        status = "Halt...\r\n"
-    if progress >= 1:
-        progress = 1
-        status = "Done...\r\n"
-    block = int(round(barLength*progress))
-    text = "\rPercent: [{0}] {1:.1f}% {2}".format( "="*block + " "*(barLength-block), progress*100, status)
-    sys.stdout.write(text)
-    sys.stdout.flush()
-
 def _insertCompetition(connection, idcpt, update=False):
     """
     Intègre dans la base de données une compétition
@@ -103,10 +79,10 @@ def _insertCompetition(connection, idcpt, update=False):
     ideprs = AnalyzeWebFFN.findIdEprForCompetition(idcpt)
 
     progress = 0.;
-    _update_progress(progress)
+    miscFFN.update_progress(progress)
     for idepr in ideprs:
         SwimmingDb.insertTrialInCompetition(connection, idcpt, idepr)
-        results = AnalyzeWebFFN.getSiteResultsOfTrial(AnalyzeWebFFN.departements[93], idcpt, idepr)
+        results = AnalyzeWebFFN.getSiteResultsOfTrial(miscFFN.departements[93], idcpt, idepr)
         #results = AnalyzeWebFFN.getResultsOfTrial(idcpt, idepr)
         if idepr > 50:
             gender = 'h' 
@@ -116,19 +92,19 @@ def _insertCompetition(connection, idcpt, update=False):
             idSwimmer = SwimmingDb.insertSwimmer(connection, result[0], result[1], result[2], result[4], gender, result[3])
             SwimmingDb.insertBestPerformance(connection, idSwimmer, idcpt, idepr, result[5], result[6])
         progress += 1
-        _update_progress(progress/len(ideprs))
+        miscFFN.update_progress(progress/len(ideprs))
 
 def _princDepartement(connection, season, dep, desc, update=False):
-    print("Département: {}".format(AnalyzeWebFFN.departements[dep]))
+    print("Département: {}".format(miscFFN.departements[dep]))
 
-    idcpts = AnalyzeWebFFN.findSiteIdCptByName(AnalyzeWebFFN.departements[dep], season, desc)
+    idcpts = AnalyzeWebFFN.findSiteIdCptByName(miscFFN.departements[dep], season, desc)
     for idcpt in idcpts:
         _insertCompetition(connection, idcpt, update)
     
 def _princRegion(connection, season, reg, desc, update=False):
-    print("Régions: {}".format(AnalyzeWebFFN.regions[reg]))
+    print("Régions: {}".format(miscFFN.regions[reg]))
 
-    idcpts = AnalyzeWebFFN.findSiteIdCptByName(AnalyzeWebFFN.regions[reg], season, desc)
+    idcpts = AnalyzeWebFFN.findSiteIdCptByName(miscFFN.regions[reg], season, desc)
     for idcpt in idcpts:
         _insertCompetition(connection, idcpt, update)
         
@@ -140,18 +116,6 @@ def _princFichier(connection, filename, update=False):
             row.pop(0)
             for idcpt in row:
                 _insertCompetition(connection, (int)(idcpt), update)
-
-def _currentSeason():
-    """
-    Retourne la saison courante
-    """
-    now = datetime.date.today()
-    season = now.year
-    if now.month >= 9:
-        season += 1
-        
-    return season
-    
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=
@@ -169,7 +133,7 @@ if __name__ == '__main__':
     
     args = parser.parse_args()
     
-    season = _currentSeason()
+    season = miscFFN.current_season()
     if args.saison == None:
         args.saison = season
     elif args.saison < 2002 or args.saison > season:
@@ -190,12 +154,12 @@ if __name__ == '__main__':
 
         desc = '^natathlon.*(12-13).*'
         if args.departement == 0:
-            for dep in AnalyzeWebFFN.departements:
+            for dep in miscFFN.departements:
                 _princDepartement(connection, args.saison, dep, desc, args.update)
         elif args.departement and args.departement > 0:
              _princDepartement(connection, args.saison, args.departement, desc, args.update)
         if args.region == 0:
-            for reg in AnalyzeWebFFN.regions:
+            for reg in miscFFN.regions:
                 _princRegion(connection, args.saison, reg, desc, args.update)
         elif args.region and args.region > 0:
             _princRegion(connection, args.saison, args.region, desc, args.update)
