@@ -20,7 +20,6 @@ from svFFN import AnalyzeWebFFN, SwimmingDb, miscFFN
 import sqlite3 as lite
 
 import argparse
-import sys
 
 import csv
 

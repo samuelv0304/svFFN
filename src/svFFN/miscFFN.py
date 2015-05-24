@@ -17,6 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
+import sys
 
 # 11 not exist
 regions = { 1 : "Alsace",  2 : "Aquitaine", 3 : "Auvergne", 4 : "Bourgogne", 5 : "Bretagne", 
