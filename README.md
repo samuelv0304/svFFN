@@ -13,7 +13,7 @@ Le format du fichier CSV accepté en lecture a le format suivant :
     Titre, idCpt1, idCpt2, idCpt3
     Autre titre, idCptX, idCptY
 
-Quelques départements et régions n'ont pas de site satellite FFN. Pour identifier les compétitions, il est nécessaire d'avoir un accès à extranat. Pour établir la liste des compétitions pour établir un fichier CSV acceptable par la commande précédente :
+Quelques départements et régions n'ont pas de sites satellite FFN. Pour identifier les compétitions, il est nécessaire d'avoir un accès à extranat. Pour établir la liste des compétitions au format CSV acceptable par la commande précédente :
 
     listeCompetitions.py -l <identifiant> -p <password> -f <fichier>
 
