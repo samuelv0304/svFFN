@@ -1,4 +1,4 @@
-Ce programme extrait du site internet de la Fédération Française de Natationles les résultats d'une ou plusieurs compétitions pour les stocker dans une base de données locale afin de les analyser.
+Ce programme extrait du site internet de la Fédération Française de Natation les résultats d'une ou plusieurs compétitions pour les stocker dans une base de données locale afin de les analyser.
 
 Un exemple d'application est réalisé pour le Natathlon Benjamin de la saison 2015. Pour cela vous devez lancer la commande
 
@@ -12,6 +12,10 @@ Le format du fichier CSV accepté en lecture a le format suivant :
 
     Titre, idCpt1, idCpt2, idCpt3
     Autre titre, idCptX, idCptY
+
+Quelques départements et régions n'ont pas de site satellite FFN. Pour identifier les compétitions, il est nécessaire d'avoir un accès à extranat. Pour établir la liste des compétitions pour établir un fichier CSV acceptable par la commande précédente :
+
+    listeCompetitions.py -l <identifiant> -p <password> -f <fichier>
 
 Fonctionnement erroné
 ---------------------
