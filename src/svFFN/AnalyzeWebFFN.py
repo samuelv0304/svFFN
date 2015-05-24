@@ -209,12 +209,13 @@ def findIdEprForCompetition(idcpt):
     
     # This will create a list of trials.
     rows = tree.xpath('//div[@id="containerMain"]//table/tr/td/select[@class="listeEpreuve"]/option/@value')
+    
     # Absence de menu déroulant avec les épreuves
     if len(rows) > 0:
         for row in rows:
             parameters = row.split('&')
             for parameter in parameters:
-                if parameter.startswith('idepr='):
+                if parameter.startswith('idepr=') and len(parameter)>6:
                     results.append(int(parameter[6:]))
     else:
         codeNage = {'Nage' : 0, 'Dos' : 10, 'Brasse' : 20, 'Papillon' : 30}

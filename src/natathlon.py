@@ -78,7 +78,6 @@ def _insertCompetition(connection, idcpt, update=False):
     ideprs = AnalyzeWebFFN.findIdEprForCompetition(idcpt)
 
     progress = 0.;
-    miscFFN.update_progress(progress)
     for idepr in ideprs:
         SwimmingDb.insertTrialInCompetition(connection, idcpt, idepr)
         results = AnalyzeWebFFN.getSiteResultsOfTrial(miscFFN.departements[93], idcpt, idepr)
