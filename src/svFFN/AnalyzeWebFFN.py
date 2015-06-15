@@ -288,7 +288,10 @@ def getSiteResultsOfTrial(site, idcpt, idTrial):
         nresult.append(result[4]) # Nationalité
         nresult.append(result[5]) # Structure
         
-        nresult.append(float(result[6].replace('.', '').replace(':','.'))) # temps
+        if ':' in result[6]:
+            nresult.append(float(result[6].replace('.', '').replace(':','.'))) # temps
+        else:
+            nresult.append(float('0.'+result[6].replace('.', ''))) # temps
         nresult.append(int(result[7].split(' ')[0])) # points
 
         results.append(nresult)
