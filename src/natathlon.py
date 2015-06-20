@@ -95,14 +95,14 @@ def _insertCompetition(connection, idcpt, update=False):
 def _princDepartement(connection, season, dep, desc, update=False):
     print("Département: {}".format(miscFFN.departements[dep]))
 
-    idcpts = AnalyzeWebFFN.findSiteIdCptByName(miscFFN.departements[dep], season, desc)
+    idcpts = AnalyzeWebFFN.findSiteIdCptByType(miscFFN.departements[dep], season, desc)
     for idcpt in idcpts:
         _insertCompetition(connection, idcpt, update)
     
 def _princRegion(connection, season, reg, desc, update=False):
     print("Régions: {}".format(miscFFN.regions[reg]))
 
-    idcpts = AnalyzeWebFFN.findSiteIdCptByName(miscFFN.regions[reg], season, desc)
+    idcpts = AnalyzeWebFFN.findSiteIdCptByType(miscFFN.regions[reg], season, desc)
     for idcpt in idcpts:
         _insertCompetition(connection, idcpt, update)
         
@@ -150,7 +150,8 @@ if __name__ == '__main__':
         createNatathlonView(connection, 'f')
         createNatathlonView(connection, 'h')
 
-        desc = '^natathlon.*(12-13).*'
+        #desc = '^type : natathlon.*(12-13).*'
+        desc = 'natathlon.*(12-13).*'
         if args.departement == 0:
             for dep in miscFFN.departements:
                 _princDepartement(connection, args.saison, dep, desc, args.update)

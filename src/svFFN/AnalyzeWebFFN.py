@@ -53,6 +53,34 @@ def findSiteIdCptByName(site, season, name):
     
     return idcpt;
 
+def findSiteIdCptByType(site, season, name):
+    """
+    Recherche dans le site indiqué toutes les compétitions du type indiqué et retourne la liste des identifiants de ces compétitions.
+    
+    :param site: nom du département ou de la région sur laquelle faire la recherche
+    :param season: saison
+    :param name: type des compétitions recherchées, une regexp est autorisée
+    :type site: string
+    :type season: int
+    :type name: string
+    :return: liste d'identifiant de compétition
+    :rtype: list
+    """
+    idcpt = []
+    
+    url = 'http://{}.ffnatation.fr/script/nat_compets.php?idsai={}'.format(site, season)
+    page = requests.get(url)
+    tree = html.fromstring(page.text)
+    
+    # This will create a list of results: Nom des compétitions
+    regexpNS = "http://exslt.org/regular-expressions"
+    regexp="//table/tr/td/div[re:test(., '{}', 'i')]/preceding-sibling::div/a[@href]".format(name)
+    rows = tree.xpath(regexp, namespaces={'re':regexpNS}) # Nom des compétitions
+    for row in rows:
+        idcpt.append(row.attrib['href'].split('=')[-1])
+    
+    return idcpt;
+
 def findDepIdCptByName(season, dep, name):
     """
     [DEPRECATED]
