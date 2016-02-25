@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 #    Analyze and extract the information from the FFN web site
 #    Copyright (C) 2015  samuelv0304@gmail.com
