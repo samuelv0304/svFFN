@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 #    <one line to give the program's name and a brief idea of what it does.>
 #    Copyright (C) 2015  samuelv0304@gmail.com
@@ -119,7 +119,7 @@ def insertSwimmer(con, lastName, firstName, year, structure, gender, nationality
 
     return lid;
 
-def insertCompetition(con, date, location, length):
+def insertCompetition(con, date, location, length, idcpt = None):
     cur = con.cursor()
     
     # Vérifie si le bassin existe, sinon le crée
@@ -132,14 +132,22 @@ def insertCompetition(con, date, location, length):
         lid = row[0]
         
     ## Crée la compétition si nécessaire
-    cur.execute("SELECT Id FROM Competitions WHERE IdPool=? AND Date=? ", (lid, date))
-    row = cur.fetchone()
-    if row == None:
-        cur.execute("INSERT INTO Competitions(IdPool, Date) VALUES(?,?)", (lid, date))
-        lid = cur.lastrowid
-        con.commit()
+    if idcpt == None:
+        cur.execute("SELECT Id FROM Competitions WHERE IdPool=? AND Date=? ", (lid, date))
+        row = cur.fetchone()
+        if row == None:
+            cur.execute("INSERT INTO Competitions(IdPool, Date) VALUES(?,?)", (lid, date))
+            lid = cur.lastrowid
+            con.commit()
+        else:
+            lid = row[0]
     else:
-        lid = row[0]
+        cur.execute("SELECT * FROM Competitions WHERE Id=?", (idcpt,))
+        row = cur.fetchone()
+        if row == None:
+            cur.execute("INSERT INTO Competitions(Id, IdPool, Date) VALUES(?,?,?)", (idcpt, lid, date))
+            con.commit()
+        lid = idcpt
     
     cur.close()
     
