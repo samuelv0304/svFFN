@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 #    Analyze and extract the information from the FFN web site
 #    Copyright (C) 2015  samuelv0304@gmail.com
@@ -83,3 +83,31 @@ def update_progress(progress):
     text = "\rPercent: [{0}] {1:.1f}% {2}".format( "="*block + " "*(barLength-block), progress*100, status)
     sys.stdout.write(text)
     sys.stdout.flush()
+
+def between(value, a, b):
+    """
+    Retourne la chaine de caractère entre les deux chaines de caractères a et b.
+    Si a ou b ne sont pas présents, retourne une chaine vide. Si b est avant a,
+    retourne une chaine vide.
+    
+    :param value: 
+    :param a:
+    :param b:
+    
+    :type value: str
+    :type a: str
+    :type b: str
+    
+    :return:
+    :rtype: str
+    """
+    pos_a = value.find(a)
+    if pos_a == -1:
+        return ""
+    pos_b = value.rfind(b)
+    if pos_b == -1:
+        return ""
+    adjusted_pos_a = pos_a + len(a)
+    if adjusted_pos_a >= pos_b:
+        return ""
+    return value[adjusted_pos_a:pos_b]
