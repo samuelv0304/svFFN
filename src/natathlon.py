@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 #    Analyze and extract the information from the FFN web site
 #    Copyright (C) 2015  samuelv0304@gmail.com
@@ -22,6 +22,99 @@ import sqlite3 as lite
 import argparse
 
 import csv
+import ezodf
+import sys
+
+def saveRanking(connection, filename):
+        """
+        Enregistre dans un fichier au format ODS les performances des nageurs, et 
+        crée des onglets avec le classement actuel et prévisionnel.
+    
+        :param connection:
+        :param filename: nom du fichier à enregistrer
+        :type filename: str
+        """
+
+        ods=ezodf.newdoc(doctype="ods", filename=filename)
+        ods.inject_style("""<style:style style:name="Titre" style:family="table-cell"><style:table-cell-properties style:text-align-source="fix" style:repeat-content="false" fo:wrap-option="wrap" style:vertical-align="middle" style:vertical-justify="auto"/><style:paragraph-properties fo:text-align="center" fo:margin-left="0mm"/><style:text-properties style:font-name="Titre" fo:font-family="Titre" fo:font-weight="bold" style:font-name-asian="Arial Unicode MS" style:font-family-asian="'Arial Unicode MS'" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-weight-asian="bold" style:font-name-complex="Arial Unicode MS" style:font-family-complex="'Arial Unicode MS'" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-weight-complex="bold"/></style:style>""")
+        #ods.inject_style("""<style:style style:name="Titre" style:family="table-cell"><style:table-cell-properties style:text-align-source="fix" style:repeat-content="false" fo:wrap-option="wrap" style:vertical-align="middle" loext:vertical-justify="auto"/><style:paragraph-properties fo:text-align="center" fo:margin-left="0mm"/><style:text-properties style:font-name="Titre" fo:font-family="Titre" fo:font-weight="bold" style:font-name-asian="Arial Unicode MS" style:font-family-asian="'Arial Unicode MS'" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-weight-asian="bold" style:font-name-complex="Arial Unicode MS" style:font-family-complex="'Arial Unicode MS'" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-weight-complex="bold"/></style:style>""")
+
+        sheet = createSheetfromTable(connection, 'NatathlonF')
+        ods.sheets.append(sheet)
+        sheet = createRankingSheet('ClassementF', 'NatathlonF', sheet.nrows())
+        ods.sheets.insert(0, sheet)
+
+        sheet = createSheetfromTable(connection, 'NatathlonH')
+        ods.sheets.append(sheet)
+        sheet = createRankingSheet('ClassementH', 'NatathlonH', sheet.nrows())
+        ods.sheets.insert(1, sheet)
+        
+        sheet = createSheetFromRequest(connection, "Competitions", "SELECT c.Id, c.Date, p.Location FROM Competitions c, Pools p WHERE p.Id = c.IdPool")
+        ods.sheets.append(sheet)
+        
+        ods.save()
+
+def createSheetFromRequest(connection, name, request):
+    """
+    """
+    cursor = connection.cursor()
+
+    cursor.execute(request)
+
+    sheet = ezodf.Table(name, (10, len(cursor.description)))
+
+    line = 0
+    for (i,tc) in zip(cursor.description, sheet.row(line)):
+            tc.set_value(i[0])
+            
+    line += 1
+    for row in cursor:
+            for (val, tc) in zip(row, sheet.row(line)):
+                    tc.set_value(val)
+            line += 1
+            
+            if line == sheet.nrows():
+                sheet.append_rows(10)
+            
+    cursor.close()
+
+    return sheet
+
+def createSheetfromTable(connection, tablename):
+        """
+        """
+        request = "SELECT * FROM {}".format(tablename)
+        return createSheetFromRequest(connection, tablename, request)
+
+headers = ['Nom', 'Prénom', 'Structure', 'Nb de points', 'Nb de course', 'Prévision nb de points']
+contents = ['={}.A{}', '={}.B{}', '={}.C{}'] # name, first name, structure
+contents2 = ['=SUM(sheet.F2;sheet.H2;sheet.J2;sheet.L2;sheet.N2;sheet.P2;sheet.R2;sheet.T2;sheet.V2;sheet.X2)',
+             '=COUNTIF((sheet.F2~sheet.H2~sheet.J2~sheet.L2~sheet.N2~sheet.P2~sheet.R2~sheet.T2~sheet.V2~sheet.X2);">0")',
+             '=IF(AND(E2<10;E2>5);ROUNDDOWN(D2+D2/E2*(10-E2));D2)']
+
+def createRankingSheet(sheetname, datasheetname, nrows = 10):
+    sheet = ezodf.Table(sheetname) #6, nrows
+
+    for (h, c) in zip(headers, sheet.row(0)):
+        c.set_value(h)
+        c.style_name = 'Titre'
+
+    for row in range(2, nrows):
+        if row >= sheet.nrows():
+            sheet.append_rows(10)
+
+        iterator = sheet.row(row-1).__iter__()
+        for c in contents:
+            tc = next(iterator)
+            formula = c.format(datasheetname, row)
+            tc.formula = formula
+
+        for c in contents2:
+            tc = next(iterator)
+            formula = c.replace('2', str(row)).replace('sheet', datasheetname)
+            tc.formula = formula           
+
+    return sheet;
 
 def createNatathlonView(con, gender):
     cur = con.cursor()
@@ -74,7 +167,9 @@ def _insertCompetition(connection, idcpt, update=False):
         print("Déjà intégrée")
         return
 
-    #SwimmingDb.insertCompetition(connection, idcpt, date, colonnes[-3], args.bassin)
+    competition = AnalyzeWebFFN.getDescForCompetition(idcpt)
+    SwimmingDb.insertCompetition(connection, competition['date'], competition['location'], competition['length'], idcpt)
+    
     ideprs = AnalyzeWebFFN.findIdEprForCompetition(idcpt)
 
     progress = 0.;
@@ -125,9 +220,10 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--departement', required=False, nargs='?', const=0, type=int, help='numéro du département. Sans paramètre, tous les départements sont insérés.')
     parser.add_argument('-r', '--region', required=False, nargs='?', const=0, type=int, help='numéro de la région. Sans paramètre, toutes les régions sont insérées.')
     parser.add_argument('-i', '--idcpt', required=False, type=int, help='identifiant de la compétition à intégrer.')
-    parser.add_argument('-f', '--fichier', required=False, type=str, help='nom du fichier contenant les identifiants des compétitions à insérer. Un identifiant par ligne.')
+    parser.add_argument('-c', '--competitions', required=False, type=str, help='nom du fichier contenant les identifiants des compétitions à insérer. Un identifiant par ligne.')
     parser.add_argument('-b', '--base', required=False, type=str, help='nom de la base de donnée.')
     parser.add_argument('-u', '--update', required=False, action='store_true', help='insére uniquement les performances des compétitions non encore insérées')
+    parser.add_argument('-f', '--fichier', required=False, type=str, help='nom du fichier ou enregistrer les classements.')    
     
     args = parser.parse_args()
     
@@ -164,11 +260,12 @@ if __name__ == '__main__':
             _princRegion(connection, args.saison, args.region, desc, args.update)
         if args.idcpt and args.idcpt > 0:
             _insertCompetition(connection, args.idcpt, args.update)
-        if args.fichier:
-            _princFichier(connection, args.fichier, args.update)
-            
-        SwimmingDb.exportTableInCSV(connection, 'NatathlonF')
-        SwimmingDb.exportTableInCSV(connection, 'NatathlonH')
+        if args.competitions:
+            _princFichier(connection, args.competitions, args.update)
+
+        if args.fichier == None:
+                args.fichier = 'natathlon-{}.ods'.format(args.saison)
+        saveRanking(connection, args.fichier)
     
     except lite.Error as e:
 
