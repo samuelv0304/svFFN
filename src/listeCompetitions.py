@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 #    Analyze and extract the information from the FFN web site
 #    Copyright (C) 2015  samuelv0304@gmail.com
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     elif args.departement and args.departement > 0:
          idcpts = AnalyzeWebExtranat.findDepIdCptByName(session, args.saison, args.departement, desc)
          if len(idcpts) > 0:
-             idcpts.insert(0, miscFFN.departements_orphelins[dep])
+             idcpts.insert(0, miscFFN.departements_orphelins[args.departement])
              cpts.append(idcpts)
     if args.region == 0:
         for reg in miscFFN.regions_orphelines:
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     elif args.region and args.region > 0:
         idcpts = AnalyzeWebExtranat.findRegIdCptByName(session, args.saison, args.region, desc)
         if len(idcpts) > 0:
-            idcpts.insert(0, miscFFN.regions_orphelines[reg])
+            idcpts.insert(0, miscFFN.regions_orphelines[args.region])
             cpts.append(idcpts)
 
     saveIdCompetitions(args.fichier, cpts)
