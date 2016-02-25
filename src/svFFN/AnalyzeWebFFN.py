@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 #    Analyze and extract the information from the FFN web site
 #    Copyright (C) 2015  samuelv0304@gmail.com
@@ -22,6 +22,9 @@ import requests
 import csv
 import urllib.request
 import codecs
+import re
+import locale
+import datetime
 
 import svFFN.miscFFN
 
@@ -218,12 +221,48 @@ def getResultsOfTrial(idcpt, idTrial):
 
     return results;
 
+def getDescForCompetition(idcpt):
+    """
+    Retourne la date, le lieu, le bassin de la compétition.
+    
+    :param idcpt: l'identifiant de la compétition
+    :type idcpt: int
+    """
+    desc = {'idcpt':idcpt}
+    
+    # MAYBE a simplest pages allow to get this information
+    url = 'http://ffn.extranat.fr/webffn/resultats.php?idcpt={}'.format(idcpt)
+    page = requests.get(url)
+    tree = html.fromstring(page.text)
+    
+    # find the description
+    elements = tree.xpath('//fieldset[@class="enteteCompetition"]/span[position()=1]')
+    desc.update({'location':elements[0].text.rpartition(' - ')[-1]})
+
+    # find the length of the swimming pool
+    elements = tree.xpath('//fieldset[@class="enteteCompetition"]/b[starts-with(text(),"Bassin de : ")]/text()')
+    length = svFFN.miscFFN.between(elements[0], 'Bassin de : ', ' m.')
+    intExp = re.compile('^\s*\d+\s*$')
+    if intExp.match(length):
+        desc.update({'length':length})
+
+    # find the date
+    elements = tree.xpath('//fieldset[@class="enteteCompetition"]/text()')
+    strdate = "".join(elements).strip()
+    strdate = svFFN.miscFFN.between(strdate, "Le ", " -") + svFFN.miscFFN.between(strdate, " au ", " -")
+    fmt = "%A %d %B %Y"
+    locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
+    date = datetime.datetime.strptime(strdate, fmt)
+    desc.update({'date':date.date()})
+    
+    return desc;
+
 def findIdEprForCompetition(idcpt):
     """
     Retourne la liste des épreuves de la compétition
     
-    :param url: numéro du département
-    :type url: string
+    :param idcpt: l'identifiant de la compétition
+    :type idcpt: int
     
     :return: liste des épreuves
     :rtype: list
