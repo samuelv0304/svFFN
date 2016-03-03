@@ -167,10 +167,16 @@ def _insertCompetition(connection, idcpt, update=False):
         print("Déjà intégrée")
         return
 
+    # Do not insert a competition, if there are no race
+    ideprs = AnalyzeWebFFN.findIdEprForCompetition(idcpt)
+    if len(ideprs) == 0:
+        print("Compétition non remontée sur le serveur")
+        return
+
     competition = AnalyzeWebFFN.getDescForCompetition(idcpt)
     SwimmingDb.insertCompetition(connection, competition['date'], competition['location'], competition['length'], idcpt)
     
-    ideprs = AnalyzeWebFFN.findIdEprForCompetition(idcpt)
+    #ideprs = AnalyzeWebFFN.findIdEprForCompetition(idcpt)
 
     progress = 0.;
     for idepr in ideprs:
