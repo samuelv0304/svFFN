@@ -250,6 +250,7 @@ def getDescForCompetition(idcpt):
     elements = tree.xpath('//fieldset[@class="enteteCompetition"]/text()')
     strdate = "".join(elements).strip()
     strdate = svFFN.miscFFN.between(strdate, "Le ", " -") + svFFN.miscFFN.between(strdate, " au ", " -")
+    strdate = strdate.replace("1er", "1") # gère le cas du 1er jour d'un mois
     fmt = "%A %d %B %Y"
     locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
     date = datetime.datetime.strptime(strdate, fmt)
